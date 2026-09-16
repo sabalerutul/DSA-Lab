@@ -1,144 +1,190 @@
+```c
 #include <stdio.h>
+
 /* Function declarations */
 void substring(char str[]);
 int palindrome(char str[]);
 int compare(char str1[], char str2[]);
 void copy(char str1[], char str2[]);
 void reverse(char str[]);
+
 int main()
 {
- char str1[100], str2[100];
- int choice, result;
- printf("Enter first string: ");
- scanf("%s", str1);
- do
- {
- printf("\n\n----- STRING OPERATIONS -----");
- printf("\n1. Substring");
- printf("\n2. Palindrome");
- printf("\n3. Compare");
- printf("\n4. Copy");
- printf("\n5. Reverse");
- printf("\n6. Exit");
- printf("\nEnter your choice: ");
- scanf("%d", &choice);
- switch (choice)
- {
- case 1:
- substring(str1);
- break;
- case 2:
- result = palindrome(str1);
- if (result == 1)
- printf("\nThe given string is a Palindrome.");
- else
- printf("\nThe given string is not a Palindrome.");
- break;
- case 3:
- printf("\nEnter second string: ");
- scanf("%s", str2);
- result = compare(str1, str2);
- if (result == 0)
- printf("\nBoth strings are equal.");
- else if (result < 0)
- printf("\nFirst string is smaller than second string.");
- else
- printf("\nFirst string is greater than second string.");
- break;
- case 4:
- copy(str1, str2);
- printf("\nCopied string: %s", str2);
- break;
- case 5:
- reverse(str1);
- break;
- case 6:
- printf("\nExiting...");
- break;
- default:
- printf("\nInvalid choice!");
- }
- } while (choice != 6);
- return 0;
+    char str1[100], str2[100];
+    int choice, result;
+
+    printf("Enter first string: ");
+    scanf("%s", str1);
+
+    do
+    {
+        printf("\n\n----- STRING OPERATIONS -----");
+        printf("\n1. Substring");
+        printf("\n2. Palindrome");
+        printf("\n3. Compare");
+        printf("\n4. Copy");
+        printf("\n5. Reverse");
+        printf("\n6. Exit");
+
+        printf("\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+            case 1:
+                substring(str1);
+                break;
+
+            case 2:
+                result = palindrome(str1);
+
+                if (result == 1)
+                    printf("\nThe given string is a Palindrome.");
+                else
+                    printf("\nThe given string is not a Palindrome.");
+
+                break;
+
+            case 3:
+                printf("\nEnter second string: ");
+                scanf("%s", str2);
+
+                result = compare(str1, str2);
+
+                if (result == 0)
+                    printf("\nBoth strings are equal.");
+                else if (result < 0)
+                    printf("\nFirst string is smaller than second string.");
+                else
+                    printf("\nFirst string is greater than second string.");
+
+                break;
+
+            case 4:
+                copy(str1, str2);
+                printf("\nCopied string: %s", str2);
+                break;
+
+            case 5:
+                reverse(str1);
+                break;
+
+            case 6:
+                printf("\nExiting...");
+                break;
+
+            default:
+                printf("\nInvalid choice!");
+        }
+
+    } while (choice != 6);
+
+    return 0;
 }
+
 /* Function for Substring */
 void substring(char str[])
 {
- int position, length, i;
- char sub[100];
- printf("\nEnter starting position: ");
- scanf("%d", &position);
- printf("Enter length of substring: ");
- scanf("%d", &length);
- for (i = 0; i < length && str[position + i] != '\0'; i++)
- {
- sub[i] = str[position + i];
- }
- sub[i] = '\0';
- printf("\nSubstring: %s", sub);
+    int position, length, i;
+    char sub[100];
+
+    printf("\nEnter starting position: ");
+    scanf("%d", &position);
+
+    printf("Enter length of substring: ");
+    scanf("%d", &length);
+
+    for (i = 0; i < length && str[position + i] != '\0'; i++)
+    {
+        sub[i] = str[position + i];
+    }
+
+    sub[i] = '\0';
+
+    printf("\nSubstring: %s", sub);
 }
+
 /* Function for Palindrome */
 int palindrome(char str[])
 {
- int i = 0, j = 0;
- while (str[j] != '\0')
- {
- j++;
- }
- j--;
- while (i < j)
- {
- if (str[i] != str[j])
- {
- return 0;
- }
- i++;
- j--;
- }
- return 1;
+    int i = 0, j = 0;
+
+    while (str[j] != '\0')
+    {
+        j++;
+    }
+
+    j--;
+
+    while (i < j)
+    {
+        if (str[i] != str[j])
+        {
+            return 0;
+        }
+
+        i++;
+        j--;
+    }
+
+    return 1;
 }
+
 /* Function to Compare two strings */
 int compare(char str1[], char str2[])
 {
- int i = 0;
- while (str1[i] != '\0' && str2[i] != '\0')
- {
- if (str1[i] != str2[i])
- {
- return str1[i] - str2[i];
- }
- i++;
- }
- return str1[i] - str2[i];
+    int i = 0;
+
+    while (str1[i] != '\0' && str2[i] != '\0')
+    {
+        if (str1[i] != str2[i])
+        {
+            return str1[i] - str2[i];
+        }
+
+        i++;
+    }
+
+    return str1[i] - str2[i];
 }
+
 /* Function to Copy a string */
 void copy(char str1[], char str2[])
 {
- int i = 0;
- while (str1[i] != '\0')
- {
- str2[i] = str1[i];
- i++;
- }
- str2[i] = '\0';
+    int i = 0;
+
+    while (str1[i] != '\0')
+    {
+        str2[i] = str1[i];
+        i++;
+    }
+
+    str2[i] = '\0';
 }
+
 /* Function to Reverse a string */
 void reverse(char str[])
 {
- int i = 0, j = 0;
- char temp;
- while (str[j] != '\0')
- {
- j++;
- }
- j--;
- while (i < j)
- {
- temp = str[i];
- str[i] = str[j];
- str[j] = temp; 
- i++;
- j--;
- }
- printf("\nReversed string: %s", str);
+    int i = 0, j = 0;
+    char temp;
+
+    while (str[j] != '\0')
+    {
+        j++;
+    }
+
+    j--;
+
+    while (i < j)
+    {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+
+        i++;
+        j--;
+    }
+
+    printf("\nReversed string: %s", str);
 }
+```
