@@ -1,89 +1,123 @@
 
 #include <stdio.h>
-#define MAX 100
+#include <stdint.h>
+#include <stdbool.h>
 
-char queue[MAX];
-int front = -1, rear = -1;
+#define UART_BUFFER_SIZE 64
 
-// Transmit data
-void transmit(char data) {
-    if (rear == MAX - 1) {
-        printf("Transmission buffer is full!\n");
-        return;
-    }
+typedef struct {
+    uint8_t buffer[UART_BUFFER_SIZE];
+    int head;
+    int tail;
+    int count;
+} UART_Buffer;
 
-    if (front == -1)
-        front = 0;
+typedef struct {
+    UART_Buffer txBuffer;
+    UART_Buffer rxBuffer;
+} UART_Device;
 
-    queue[++rear] = data;
-    printf("Transmitted: %c\n", data);
+// Initialize buffer
+void UART_Buffer_Init(UART_Buffer *buf) {
+    buf->head = 0;
+    buf->tail = 0;
+    buf->count = 0;
+}
+
+// Check if buffer is full
+bool UART_Buffer_IsFull(UART_Buffer *buf) {
+    return buf->count == UART_BUFFER_SIZE;
+}
+
+// Check if buffer is empty
+bool UART_Buffer_IsEmpty(UART_Buffer *buf) {
+    return buf->count == 0;
+}
+
+// Insert data into buffer
+bool UART_Buffer_Enqueue(UART_Buffer *buf, uint8_t data) {
+    if (UART_Buffer_IsFull(buf))
+        return false;
+
+    buf->buffer[buf->head] = data;
+    buf->head = (buf->head + 1) % UART_BUFFER_SIZE;
+    buf->count++;
+
+    return true;
+}
+
+// Remove data from buffer
+bool UART_Buffer_Dequeue(UART_Buffer *buf, uint8_t *data) {
+    if (UART_Buffer_IsEmpty(buf))
+        return false;
+
+    *data = buf->buffer[buf->tail];
+    buf->tail = (buf->tail + 1) % UART_BUFFER_SIZE;
+    buf->count--;
+
+    return true;
+}
+
+// Initialize UART device
+void UART_Init(UART_Device *uart) {
+    UART_Buffer_Init(&uart->txBuffer);
+    UART_Buffer_Init(&uart->rxBuffer);
+
+    printf("UART Initialized.\n");
+}
+
+// Send data
+void UART_SendByte(UART_Device *uart, uint8_t data) {
+    if (UART_Buffer_Enqueue(&uart->txBuffer, data))
+        printf("TX: '%c' enqueued\n", data);
+    else
+        printf("TX Buffer Full! Data lost.\n");
 }
 
 // Receive data
-void receive() {
-    if (front == -1 || front > rear) {
-        printf("No data to receive!\n");
-        return;
-    }
-
-    printf("Received: %c\n", queue[front]);
-    front++;
-
-    if (front > rear)
-        front = rear = -1;
+void UART_ReceiveByte(UART_Device *uart, uint8_t data) {
+    if (UART_Buffer_Enqueue(&uart->rxBuffer, data))
+        printf("RX: '%c' received\n", data);
+    else
+        printf("RX Buffer Full! Data lost.\n");
 }
 
-void display() {
-    int i;
+// Process transmitted data
+void UART_ProcessTransmit(UART_Device *uart) {
+    uint8_t data;
 
-    if (front == -1) {
-        printf("Buffer is empty.\n");
-        return;
+    while (UART_Buffer_Dequeue(&uart->txBuffer, &data)) {
+        printf("Transmitted: '%c'\n", data);
     }
-
-    printf("Buffer data: ");
-    for (i = front; i <= rear; i++)
-        printf("%c ", queue[i]);
-
-    printf("\n");
 }
 
+// Read received data
+void UART_ReadReceivedData(UART_Device *uart) {
+    uint8_t data;
+
+    while (UART_Buffer_Dequeue(&uart->rxBuffer, &data)) {
+        printf("Read from RX: '%c'\n", data);
+    }
+}
+
+// Main function
 int main() {
-    int choice;
-    char data;
+    UART_Device uart;
 
-    do {
-        printf("\n--- UART COMMUNICATION ---\n");
-        printf("1. Transmit Data\n");
-        printf("2. Receive Data\n");
-        printf("3. Display Buffer\n");
-        printf("4. Exit\n");
-        printf("Enter choice: ");
-        scanf("%d", &choice);
+    UART_Init(&uart);
 
-        switch (choice) {
-            case 1:
-                printf("Enter character to transmit: ");
-                scanf(" %c", &data);
-                transmit(data);
-                break;
+    UART_SendByte(&uart, 'H');
+    UART_SendByte(&uart, 'E');
+    UART_SendByte(&uart, 'L');
+    UART_SendByte(&uart, 'L');
+    UART_SendByte(&uart, 'O');
 
-            case 2:
-                receive();
-                break;
+    UART_ProcessTransmit(&uart);
 
-            case 3:
-                display();
-                break;
+    UART_ReceiveByte(&uart, 'O');
+    UART_ReceiveByte(&uart, 'K');
 
-            case 4:
-                printf("UART simulation ended.\n");
-                break;
-
-            default:
-                printf("Invalid choice!\n");
-        }
-    } while (choice != 4);
+    UART_ReadReceivedData(&uart);
 
     return 0;
 }
